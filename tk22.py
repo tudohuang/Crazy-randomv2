@@ -1,77 +1,61 @@
 import tkinter as tk
 import random
 
-def random_number_generator(min_value, max_value, count, exclude_list):
+def generate_random_numbers():
+    min_value = min_value_var.get()
+    max_value = max_value_var.get()
+    count = count_var.get()
+    exclude_list = chosen_numbers
+
     available_numbers = set(range(min_value, max_value + 1)) - set(exclude_list)
     if count > len(available_numbers):
         result_var.set("Error: Too many numbers requested.")
         return
 
-    chosen_numbers = random.sample(available_numbers, count)
-    chosen_list.extend(chosen_numbers)  # Add to the global chosen list
+    new_numbers = random.sample(available_numbers, count)
+    chosen_numbers.extend(new_numbers)
+    update_display()
+
+def update_display():
     result_var.set(', '.join(map(str, chosen_numbers)))
+    chosen_numbers_var.set(f'Chosen Numbers: {len(chosen_numbers)}')
 
-def clear_fields():
-    min_value_var.set(0)
-    max_value_var.set(0)
-    count_var.set(0)
-    result_var.set('')
+def clear_all():
+    chosen_numbers.clear()
+    update_display()
 
-def clear_chosen_list():
-    chosen_list.clear()
-    chosen_list_var.set('Chosen List Cleared')
+def create_input_field(parent, label, variable):
+    frame = tk.Frame(parent)
+    tk.Label(frame, text=label, font=label_font).pack(side=tk.LEFT)
+    tk.Entry(frame, textvariable=variable, font=entry_font).pack(side=tk.LEFT)
+    frame.pack(pady=5)
 
 root = tk.Tk()
-root.title('隨機選號器')
-root.geometry('400x500')  # Adjusted size
+root.title('Random Number Generator')
+root.geometry('400x300')
 
 # Styling
-label_font = ('Arial', 14)
-entry_font = ('Arial', 14)
-button_font = ('Arial', 14, 'bold')
+label_font = ('Arial', 12)
+entry_font = ('Arial', 12)
+button_font = ('Arial', 12, 'bold')
 
-# Result and chosen list labels
+# Variables
+min_value_var = tk.IntVar(value=1)
+max_value_var = tk.IntVar(value=100)
+count_var = tk.IntVar(value=1)
 result_var = tk.StringVar()
-result_label = tk.Label(root, textvariable=result_var, font=label_font, fg='blue')
-result_label.pack(pady=10)
+chosen_numbers_var = tk.StringVar()
+chosen_numbers = []
 
-chosen_list_var = tk.StringVar()
-chosen_list_label = tk.Label(root, textvariable=chosen_list_var, font=label_font, fg='green')
-chosen_list_label.pack(pady=10)
+# UI Elements
+create_input_field(root, "Min Value:", min_value_var)
+create_input_field(root, "Max Value:", max_value_var)
+create_input_field(root, "Count:", count_var)
 
-# Global chosen list
-chosen_list = []
+tk.Button(root, text='Generate', font=button_font, command=generate_random_numbers).pack(pady=10)
+tk.Button(root, text='Clear', font=button_font, command=clear_all).pack(pady=10)
 
-# Helper function for label and entry
-def create_label_entry(label_text, variable):
-    label = tk.Label(root, text=label_text, font=label_font)
-    label.pack(pady=5)
-    entry = tk.Entry(root, textvariable=variable, font=entry_font)
-    entry.pack(pady=5)
-
-# Entry variables
-min_value_var = tk.IntVar()
-max_value_var = tk.IntVar()
-count_var = tk.IntVar()
-
-# Entry fields
-create_label_entry("最小值 (Min):", min_value_var)
-create_label_entry("最大值 (Max):", max_value_var)
-create_label_entry("數量 (Count):", count_var)
-
-# Buttons
-generate_btn = tk.Button(root, text='生成隨機數', font=button_font, command=lambda: random_number_generator(min_value_var.get(), max_value_var.get(), count_var.get(), chosen_list))
-generate_btn.pack(pady=10)
-
-clear_btn = tk.Button(root, text='清除', font=button_font, command=clear_fields)
-clear_btn.pack(pady=10)
-
-clear_list_btn = tk.Button(root, text='清除已選數字', font=button_font, command=clear_chosen_list)
-clear_list_btn.pack(pady=10)
-
-# Anime Image (if you have an image file)
-# img = tk.PhotoImage(file="path_to_your_anime_image.png")
-# img_label = tk.Label(root, image=img)
-# img_label.pack(pady=10)
+tk.Label(root, textvariable=result_var, font=label_font, fg='blue').pack(pady=10)
+tk.Label(root, textvariable=chosen_numbers_var, font=label_font, fg='green').pack(pady=10)
 
 root.mainloop()
