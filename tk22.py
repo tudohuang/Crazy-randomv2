@@ -2,9 +2,18 @@ import customtkinter as ctk
 import tkinter as tk
 import random
 import threading
-
+weighted_numbers = {}
 
 #---------------------------------------------------------#
+def set_weighted_numbers(numbers_str):
+    global weighted_numbers
+    try:
+        pairs = numbers_str.split(',')
+        weighted_numbers = {int(pair.split(':')[0]): int(pair.split(':')[1]) for pair in pairs}
+        weighted_numbers_var.set("加權數字： " + ', '.join([f"{num}:{weight}" for num, weight in weighted_numbers.items()]))
+    except ValueError:
+        weighted_numbers_var.set("無效輸入")
+
 def fade_in(window, step=10, speed=25):
     def update_alpha():
         nonlocal alpha
@@ -33,18 +42,26 @@ def generate_random_numbers():
         result_var.set("Min value cannot be greater than Max value.")
         return
 
-    available_numbers = set(range(min_value, max_value + 1)) - set(chosen_numbers)
-    repeatable_available = set(repeatable_numbers) & available_numbers
-    total_available = list(available_numbers | repeatable_available)
+    # 創建一個加權池，初始權重為 1
+    weighted_pool = [num for num in range(min_value, max_value + 1)]
 
-    if count > len(total_available):
-        count = len(total_available)
+    # 根據加權數字調整權重
+    for num, weight in weighted_numbers.items():
+        if min_value <= num <= max_value:
+            weighted_pool.extend([num] * (weight - 1))
 
-    new_numbers = random.sample(total_available, count)
+    # 如果加權池過大，進行裁剪以保持合理的隨機性
+    max_pool_size = 100000  # 可以根據需要調整這個值
+    if len(weighted_pool) > max_pool_size:
+        weighted_pool = random.sample(weighted_pool, max_pool_size)
+
+    if count > len(weighted_pool):
+        count = len(weighted_pool)
+
+    new_numbers = random.sample(weighted_pool, count)
     chosen_numbers.extend([num for num in new_numbers if num not in repeatable_numbers])
     update_display(new_numbers)
     update_chosen_menu()
-
 
 def update_display(new_numbers):
     result_var.set('，'.join(map(str, new_numbers)))
@@ -53,7 +70,6 @@ def update_chosen_menu():
     menu_values = ['已選數字'] + sorted([str(num) for num in chosen_numbers])
     chosen_option_menu.configure(values=menu_values)
     chosen_option_var.set('已選數字')
-
 
 def clear_all():
     chosen_numbers.clear()
@@ -93,6 +109,8 @@ count_var = tk.IntVar(value=1)
 result_var = tk.StringVar()
 chosen_numbers_var = tk.StringVar(value='已選數字')
 repeatable_numbers_var = tk.StringVar(value='可重複數字')
+weighted_numbers_var = tk.StringVar(value='加權數字')
+
 chosen_numbers = []
 repeatable_numbers = []
 title_label = ctk.CTkLabel(root, text="🎲Random Number🎲", font=("Helvetica", 40, "bold")).pack(pady=20)
@@ -103,6 +121,7 @@ create_input_field(root, "MIN：", min_value_var)
 create_input_field(root, "MAX：", max_value_var)
 create_input_field(root, "Count：", count_var)
 create_input_field(root, "Repeatable(Split using ,)：", tk.StringVar(), is_repeatable=True)
+create_input_field(root, "Weighted Numbers (e.g. 5:3,7:2)：", weighted_numbers_var, is_repeatable=True)
 
 ctk.CTkButton(root, text='Generate', command=generate_random_numbers).pack(pady=10)
 ctk.CTkButton(root, text='Clear', command=clear_all).pack(pady=10)
@@ -113,6 +132,6 @@ chosen_option_menu.pack(pady=10)
 
 root.attributes("-alpha", 0)
 start_fade_in(root)  
-
+print(weighted_numbers)
 root.mainloop()
 #---------------------------------------------------------#
