@@ -2,6 +2,7 @@ import customtkinter as ctk
 import tkinter as tk
 import random
 import threading
+import time
 weighted_numbers = {}
 
 #---------------------------------------------------------#
@@ -29,6 +30,20 @@ def start_fade_in(window):
     fade_thread = threading.Thread(target=fade_in, args=(window,))
     fade_thread.start()
 
+def spin_numbers(duration=1000, interval=100, update_func=None):
+    end_time = time.time() + duration / 1000
+    def update_spin():
+        if time.time() < end_time:
+
+            random_number = random.randint(min_value_var.get(), max_value_var.get())
+            result_var.set(str(random_number))
+            root.after(interval, update_spin)
+        else:
+            if update_func:
+                update_func()
+
+    update_spin()
+
 def generate_random_numbers():
     try:
         min_value = min_value_var.get()
@@ -42,26 +57,34 @@ def generate_random_numbers():
         result_var.set("Min value cannot be greater than Max value.")
         return
 
-    # 創建一個加權池，初始權重為 1
+    # Create a weighted pool, initially with a weight of 1
     weighted_pool = [num for num in range(min_value, max_value + 1)]
 
-    # 根據加權數字調整權重
+    # Adjust the weights based on the weighted numbers
     for num, weight in weighted_numbers.items():
         if min_value <= num <= max_value:
             weighted_pool.extend([num] * (weight - 1))
 
-    # 如果加權池過大，進行裁剪以保持合理的隨機性
-    max_pool_size = 100000  # 可以根據需要調整這個值
+    # If the weighted pool is too large, trim it to maintain reasonable randomness
+    max_pool_size = 100000  # Adjust this value as needed
     if len(weighted_pool) > max_pool_size:
         weighted_pool = random.sample(weighted_pool, max_pool_size)
 
     if count > len(weighted_pool):
         count = len(weighted_pool)
 
+    # Start spinning animation in a new thread
+    threading.Thread(target=spin_numbers, args=(2000, 100)).start()
+
+    # Delay execution to allow for spinning animation
+    #time.sleep(0.00001)  # Corresponds to the duration of the spin animation
+
+    # Generate and display the actual numbers
     new_numbers = random.sample(weighted_pool, count)
     chosen_numbers.extend([num for num in new_numbers if num not in repeatable_numbers])
     update_display(new_numbers)
     update_chosen_menu()
+
 
 def update_display(new_numbers):
     result_var.set('，'.join(map(str, new_numbers)))
