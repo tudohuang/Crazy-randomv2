@@ -30,20 +30,37 @@ def start_fade_in(window):
     fade_thread = threading.Thread(target=fade_in, args=(window,))
     fade_thread.start()
 
-def spin_numbers(duration=1000, interval=100, update_func=None):
-    end_time = time.time() + duration / 1000
-    def update_spin():
-        if time.time() < end_time:
+def update_display(final_numbers, index=0, duration=500, interval=50):
+    def format_number(num):
+        """Adds a star next to 24."""
+        return f"{num}★" if num == 24 else str(num)
 
-            random_number = random.randint(min_value_var.get(), max_value_var.get())
-            result_var.set(str(random_number))
-            root.after(interval, update_spin)
-        else:
-            if update_func:
-                update_func()
+    if index < len(final_numbers):
+        end_time = time.time() + duration / 1000
 
-    update_spin()
+        def update_spin():
+            if time.time() < end_time:
+                random_number = random.randint(min_value_var.get(), max_value_var.get())
+                # Ensure all numbers are formatted as strings
+                current_numbers = [format_number(n) for n in final_numbers[:index]] + [format_number(random_number)] + [format_number(n) for n in final_numbers[index + 1:]]
+                result_var.set('，'.join(current_numbers))
+                root.after(interval, update_spin)
+            else:
+                # Format the final number at the current index
+                final_numbers[index] = format_number(final_numbers[index])
+                formatted_final_numbers = [format_number(num) for num in final_numbers]
+                result_var.set('，'.join(formatted_final_numbers))
+                update_display(final_numbers, index + 1, duration, interval)
 
+        update_spin()
+    else:
+        # Ensure the final display is formatted correctly
+        formatted_numbers = [format_number(num) for num in final_numbers]
+        result_var.set('，'.join(formatted_numbers))
+
+
+
+# Function to generate random numbers
 def generate_random_numbers():
     try:
         min_value = min_value_var.get()
@@ -57,37 +74,29 @@ def generate_random_numbers():
         result_var.set("Min value cannot be greater than Max value.")
         return
 
-    # Create a weighted pool, initially with a weight of 1
     weighted_pool = [num for num in range(min_value, max_value + 1)]
-
-    # Adjust the weights based on the weighted numbers
     for num, weight in weighted_numbers.items():
         if min_value <= num <= max_value:
             weighted_pool.extend([num] * (weight - 1))
 
-    # If the weighted pool is too large, trim it to maintain reasonable randomness
-    max_pool_size = 100000  # Adjust this value as needed
+    max_pool_size = 100000
     if len(weighted_pool) > max_pool_size:
         weighted_pool = random.sample(weighted_pool, max_pool_size)
 
     if count > len(weighted_pool):
         count = len(weighted_pool)
 
-    # Start spinning animation in a new thread
-    threading.Thread(target=spin_numbers, args=(2000, 100)).start()
-
-    # Delay execution to allow for spinning animation
-    #time.sleep(0.00001)  # Corresponds to the duration of the spin animation
-
-    # Generate and display the actual numbers
     new_numbers = random.sample(weighted_pool, count)
-    chosen_numbers.extend([num for num in new_numbers if num not in repeatable_numbers])
+    
+    # Modify this part to ensure non-repeated numbers in chosen_numbers
+    for num in new_numbers:
+        if num not in chosen_numbers:
+            chosen_numbers.append(num)
+
     update_display(new_numbers)
     update_chosen_menu()
 
 
-def update_display(new_numbers):
-    result_var.set('，'.join(map(str, new_numbers)))
 
 def update_chosen_menu():
     menu_values = ['已選數字'] + sorted([str(num) for num in chosen_numbers])
