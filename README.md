@@ -1,5 +1,6 @@
 # Random Number Generator
 [![Chinese Version](https://img.shields.io/badge/-中文版-blue)](https://github.com/tudohuang/Crazy-randomv2/blob/main/README-ch.md)
+Request by CGSH 106
 ## Description
 This application is a Random Number Generator built using Python with Tkinter and CustomTkinter libraries. It's designed to generate a set of random numbers based on user-defined parameters such as minimum and maximum values, count, repeatable numbers, and weighted numbers.
 
