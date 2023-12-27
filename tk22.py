@@ -74,9 +74,9 @@ def generate_random_numbers():
         result_var.set("Min value cannot be greater than Max value.")
         return
 
-    weighted_pool = [num for num in range(min_value, max_value + 1)]
+    weighted_pool = [num for num in range(min_value, max_value + 1) if num not in chosen_numbers]
     for num, weight in weighted_numbers.items():
-        if min_value <= num <= max_value:
+        if min_value <= num <= max_value and num not in chosen_numbers:
             weighted_pool.extend([num] * (weight - 1))
 
     max_pool_size = 100000
@@ -88,10 +88,8 @@ def generate_random_numbers():
 
     new_numbers = random.sample(weighted_pool, count)
     
-    # Modify this part to ensure non-repeated numbers in chosen_numbers
-    for num in new_numbers:
-        if num not in chosen_numbers:
-            chosen_numbers.append(num)
+    # Add new numbers to chosen_numbers
+    chosen_numbers.extend(new_numbers)
 
     update_display(new_numbers)
     update_chosen_menu()
@@ -106,7 +104,7 @@ def update_chosen_menu():
 def clear_all():
     chosen_numbers.clear()
     repeatable_numbers.clear()
-    update_display([])
+    result_var.set("")
     update_chosen_menu()
 
 def set_repeatable_numbers(numbers_str):
@@ -125,14 +123,14 @@ def create_input_field(parent, label, variable, is_repeatable=False):
     if is_repeatable:
         button = ctk.CTkButton(frame, text="Setup", command=lambda: set_repeatable_numbers(entry.get()))
         button.pack(side=tk.LEFT)
-    frame.pack(pady=5)
+    frame.pack(pady=8)
 
 
 #---------------------------------------------------------#
-large_font = ('Helvetica', 35)
+large_font = ('Helvetica', 60)
 root = ctk.CTk()
 root.title('隨機數字產生器')
-root.geometry('800x700')
+root.geometry('1200x1000')
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 min_value_var = tk.IntVar(value=1)
@@ -145,9 +143,9 @@ weighted_numbers_var = tk.StringVar(value='加權數字')
 
 chosen_numbers = []
 repeatable_numbers = []
-title_label = ctk.CTkLabel(root, text="🎲Random Number🎲", font=("Helvetica", 40, "bold")).pack(pady=20)
+title_label = ctk.CTkLabel(root, text="🎲Random Number🎲", font=("Helvetica", 80, "bold")).pack(pady=30)
 
-ctk.CTkLabel(root, textvariable=result_var,font=large_font).pack(pady=15)
+ctk.CTkLabel(root, textvariable=result_var,font=large_font).pack(pady=20)
 
 create_input_field(root, "MIN：", min_value_var)
 create_input_field(root, "MAX：", max_value_var)
@@ -160,7 +158,7 @@ ctk.CTkButton(root, text='Clear', command=clear_all).pack(pady=10)
 
 chosen_option_var = tk.StringVar(root)
 chosen_option_menu = ctk.CTkOptionMenu(root, variable=chosen_option_var, values=['已選數字'])
-chosen_option_menu.pack(pady=10)
+chosen_option_menu.pack(pady=15)
 
 root.attributes("-alpha", 0)
 start_fade_in(root)  
