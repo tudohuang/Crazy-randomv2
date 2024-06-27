@@ -21,7 +21,7 @@ jobs:
         python-version: '3.8'
 
     - name: Install PyInstaller
-      run: pip install gtts customtkinter pygame pyfiglet
+      run: pip install gtts customtkinter pygame pyfiglet pyinstaller
 
 
     - name: Build Executable with PyInstaller
