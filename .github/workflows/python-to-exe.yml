@@ -21,7 +21,8 @@ jobs:
         python-version: '3.8'
 
     - name: Install PyInstaller
-      run: pip install pyinstaller customtkinter
+      run: pip install gtts customtkinter pygame pyfiglet
+
 
     - name: Build Executable with PyInstaller
       run: pyinstaller --onefile --clean tk22.py
