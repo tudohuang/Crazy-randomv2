@@ -12,7 +12,7 @@ CGSH106班委託製造
 - **淡入效果**：窗口以平滑的淡入過渡出現。
 
 ## 如何運行
-要運行此應用程序，您的系統需要安裝 Python 及 Tkinter 和 CustomTkinter 函式庫。克隆存儲庫，導航到項目目錄，並運行腳本：
+要運行此應用程序，您的系統需要安裝 Python 及 Tkinter 和 CustomTkinter 函式庫。clone存儲庫，導航到項目目錄，並運行腳本：
 
 ```
 python random_number_generator.py
