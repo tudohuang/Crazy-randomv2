@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: linear-gradient(135deg, #ffffff 0%, #0d68fa 100%);
+            text-align: center;
+            margin: 50px;
+        }
+        .container {
+            background: linear-gradient(135deg, #ffffff 0%, #0d68fa 100%);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: auto;
+        }
+        button {
+            padding: 10px 20px;
+            margin-top: 20px;
+            border: none;
+            background: #007bff;
+            color: white;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+        button:hover {
+            background: #0056b3;
+            transform: scale(1.05);
+        }
+        .number {
+            font-size: 48px;
+            font-weight: bold;
+            margin-top: 20px;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .number.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+        #numbersList {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .drawn-number {
+            background: #007bff;
+            color: white;
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bingo Game</h1>
+        <div class="number" id="bingoNumber">Press Start</div>
+        <button onclick="drawNumber()">Draw Number</button>
+     
+        <button id="restartButton">Restart Game</button>
+        <div id="drawnNumbers" style="margin-top: 20px;">
+            <h2>Drawn Numbers</h2>
+            <div id="numbersList"></div>
+        </div>
+    </div>
+    <script>
+        let bingo = Array.from({ length: 75 }, (_, i) => i + 1);
+        function drawNumber() {
+            if (bingo.length === 0) {
+                document.getElementById('bingoNumber').innerText = "Game Over";
+                return;
+            }
+            const index = Math.floor(Math.random() * bingo.length);
+            const number = bingo.splice(index, 1)[0];
+            const numberElement = document.getElementById('bingoNumber');
+            numberElement.classList.remove("show");
+            setTimeout(() => {
+                numberElement.innerText = number;
+                numberElement.classList.add("show");
+            }, 100);
+            
+            const numbersList = document.getElementById('numbersList');
+            const newNumber = document.createElement('div');
+            newNumber.classList.add('drawn-number');
+            newNumber.innerText = number;
+            numbersList.appendChild(newNumber);
+        }
+        
+        document.addEventListener('keydown', function(event) {
+            if (event.key === ' ') {
+                drawNumber();
+            }
+        });
+        
+        document.getElementById('startButton').addEventListener('click', function() {
+            drawNumber();
+        });
+    </script>
+    <script>
+        document.getElementById('restartButton').addEventListener('click', function() {
+            bingo = Array.from({ length: 75 }, (_, i) => i + 1);
+            document.getElementById('bingoNumber').innerText = "Press Start";
+            document.getElementById('numbersList').innerHTML = '';
+        });
+    </script>
+</body>
+</html>
