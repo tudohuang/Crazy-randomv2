@@ -61,18 +61,53 @@
             font-size: 18px;
             font-weight: bold;
         }
+        #languageSelect, #ttsButton {
+        margin-top: 20px;
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+    #ttsButton {
+        background: #28a745;
+        color: white;
+        cursor: pointer;
+        transition: background 0.3s ease, transform 0.2s ease;
+    }
+    #ttsButton:hover {
+        background: #218838;
+        transform: scale(1.05);
+    }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Bingo Game</h1>
         <div class="number" id="bingoNumber">Press Start</div>
-        <button onclick="drawNumber()">Draw Number</button>
+        <button onclick="drawNumber()" id="drawButton">Draw Number</button>
      
         <button id="restartButton">Restart Game</button>
+<div>
+            <label for="languageSelect">Language:</label>
+            <select id="languageSelect">
+                <option value="en-US">English (US)</option>
+                <option value="en-GB">English (UK)</option>
+                <option value="es-ES">Spanish</option>
+                <option value="fr-FR">French</option>
+                <option value="de-DE">German</option>
+                <option value="it-IT">Italian</option>
+                <option value="ja-JP">Japanese</option>
+                <option value="ko-KR">Korean</option>
+                <option value="zh-TW">Chinese (Taiwan)</option>
+                <option value="zh-CN">Chinese (China)</option>
+                <option value="zh-HK">Chinese (Hong Kong)</option>
+                <option value="ru-RU">Russian</option>
+            </select>
+</div>        
         <div id="drawnNumbers" style="margin-top: 20px;">
             <h2>Drawn Numbers</h2>
             <div id="numbersList"></div>
+            
         </div>
     </div>
     <script>
@@ -96,6 +131,7 @@
             newNumber.classList.add('drawn-number');
             newNumber.innerText = number;
             numbersList.appendChild(newNumber);
+            speakNumber(number);
         }
         
         document.addEventListener('keydown', function(event) {
@@ -103,17 +139,35 @@
                 drawNumber();
             }
         });
-        
-        document.getElementById('startButton').addEventListener('click', function() {
-            drawNumber();
-        });
+        function speakNumber(number) {
+    const language = document.getElementById('languageSelect').value;
+    const utterance = new SpeechSynthesisUtterance(number);
+    
+    // 確保語音庫已載入
+    const voices = window.speechSynthesis.getVoices();
+    
+    // 找到對應語言的語音
+    const selectedVoice = voices.find(voice => voice.lang === language);
+    if (selectedVoice) {
+        utterance.voice = selectedVoice;
+    } else {
+        console.warn("No matching voice found for", language);
+    }
+
+    // 播放語音
+    window.speechSynthesis.speak(utterance);
+}
+
     </script>
     <script>
         document.getElementById('restartButton').addEventListener('click', function() {
+            speechSynthesis.cancel();
             bingo = Array.from({ length: 75 }, (_, i) => i + 1);
             document.getElementById('bingoNumber').innerText = "Press Start";
             document.getElementById('numbersList').innerHTML = '';
         });
     </script>
+
 </body>
 </html>
+
