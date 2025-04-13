@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GCD & LCM Game</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      background: #f7f7f7;
+      color: #222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      color: #1a1a1a;
+    }
+
+    .game-box {
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.95em;
+      margin-bottom: 10px;
+      color: #444;
+    }
+
+    .question {
+      font-size: 1.3em;
+      margin: 20px 0;
+    }
+
+    input {
+      padding: 10px;
+      font-size: 1em;
+      margin: 10px;
+      width: 100px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 12px 25px;
+      font-size: 1em;
+      background-color: #1a73e8;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #155ab6;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 1em;
+      min-height: 28px;
+      color: #333;
+    }
+
+    .game-over {
+      font-weight: bold;
+      color: #c62828;
+      margin-top: 15px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .level-up {
+      color: #388e3c;
+      margin-top: 10px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <h1>GCD & LCM Game</h1>
+  <div class="game-box">
+    <div class="status-bar">
+      <div><i class="fas fa-clock"></i> Time: <span id="timer">60</span>s</div>
+      <div><i class="fas fa-signal"></i> Level: <span id="level">1</span></div>
+    </div>
+    <div class="status-bar">
+      <div><i class="fas fa-fire"></i> Combo: <span id="combo">0</span></div>
+      <div><i class="fas fa-star"></i> Score: <span id="score">0</span></div>
+    </div>
+
+    <div class="question" id="question">Loading...</div>
+    <input type="number" id="gcdInput" placeholder="GCD" />
+    <input type="number" id="lcmInput" placeholder="LCM" />
+    <br />
+    <button onclick="checkAnswer()">Submit</button>
+    <div class="result" id="result"></div>
+    <div class="level-up hidden" id="levelUp">Level Up!</div>
+    <div class="game-over hidden" id="gameOver">
+      Game Over. <button onclick="restartGame()">Restart</button>
+    </div>
+  </div>
+
+  <script>
+    let num1, num2;
+    let timer, timeLeft = 60;
+    let score = 0, combo = 0, level = 1;
+    let questionCount = 0;
+
+    function gcd(a, b) {
+      return b === 0 ? a : gcd(b, a % b);
+    }
+
+    function lcm(a, b) {
+      return (a * b) / gcd(a, b);
+    }
+
+    function generateQuestion() {
+      const range = 50 + (level - 1) * 20;
+      num1 = Math.floor(Math.random() * range) + 1;
+      num2 = Math.floor(Math.random() * range) + 1;
+      document.getElementById('question').textContent = `Find the GCD and LCM of ${num1} and ${num2}`;
+      document.getElementById('gcdInput').value = '';
+      document.getElementById('lcmInput').value = '';
+      document.getElementById('result').textContent = '';
+      document.getElementById('levelUp').classList.add('hidden');
+      resetTimer();
+    }
+
+    function resetTimer() {
+      clearInterval(timer);
+      timeLeft = 60;
+      document.getElementById('timer').textContent = timeLeft;
+      timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft;
+        if (timeLeft === 0) {
+          clearInterval(timer);
+          endGame(`⏱ Time's up!`);
+        }
+      }, 1000);
+    }
+
+    function updateStats() {
+      document.getElementById('score').textContent = score;
+      document.getElementById('combo').textContent = combo;
+      document.getElementById('level').textContent = level;
+    }
+
+    function checkAnswer() {
+      const userGCD = parseInt(document.getElementById('gcdInput').value, 10);
+      const userLCM = parseInt(document.getElementById('lcmInput').value, 10);
+      const correctGCD = gcd(num1, num2);
+      const correctLCM = lcm(num1, num2);
+
+      if (userGCD === correctGCD && userLCM === correctLCM) {
+        combo++;
+        score += 10 + combo * 2;
+        questionCount++;
+        if (questionCount % 5 === 0) {
+          level++;
+          document.getElementById('levelUp').classList.remove('hidden');
+        }
+        updateStats();
+        generateQuestion();
+      } else {
+        endGame(`Incorrect. GCD: ${correctGCD}, LCM: ${correctLCM}`);
+      }
+    }
+
+    function endGame(message) {
+      clearInterval(timer);
+      document.getElementById('result').textContent = message;
+      document.getElementById('gameOver').classList.remove('hidden');
+    }
+
+    function restartGame() {
+      score = 0;
+      combo = 0;
+      level = 1;
+      questionCount = 0;
+      document.getElementById('gameOver').classList.add('hidden');
+      updateStats();
+      generateQuestion();
+    }
+
+    window.onload = () => {
+      updateStats();
+      generateQuestion();
+    };
+  </script>
+</body>
+</html>
