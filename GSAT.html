@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rainbow Marquee Title</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background: linear-gradient(135deg, #181825 0%, #23243a 40%, #008f43 85%, #0cffef 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+        }
+        body::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: 
+            linear-gradient(120deg, rgba(191,161,0,0.16) 0%, rgba(255,251,230,0.10) 100%),
+            repeating-linear-gradient(
+                to right,
+                rgba(255,255,255,0.07) 0px,
+                rgba(255,255,255,0.07) 1px,
+                transparent 1px,
+                transparent 48px
+            ),
+            repeating-linear-gradient(
+                to bottom,
+                rgba(255,255,255,0.07) 0px,
+                rgba(255,255,255,0.07) 1px,
+                transparent 1px,
+                transparent 48px
+            );
+            pointer-events: none;
+            z-index: 0;
+        }
+        .rainbow-text {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            display: inline-block;
+            font-size: 3em;
+            font-weight: bold;
+            background: linear-gradient(90deg, #ff00cc, #00fff7, #fffb00, #00ff85, #ff00cc, #00fff7, #fffb00, #00ff85, #ff00cc);
+            filter: contrast(1.2) drop-shadow(0 0 8px #00fff7);
+            background-size: 200% auto;
+            color: transparent;
+            background-clip: text;
+            -webkit-background-clip: text;
+            animation: rainbow-move 3s linear infinite;
+            margin-bottom: 40px;
+        }
+        @keyframes rainbow-move {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+        #clock {
+            font-size: 2em;
+            color: white;
+            text-align: center;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    
+    <span class="rainbow-text">學科能力測驗</span>
+    <p id="clock"></p>
+    <div id="flip-calendar" style="display: flex; gap: 10px; margin-top: 20px;"></div>
+    <div style="margin-top:30px; text-align:center;">
+        <span style="font-size:1.3em; color:#fff; filter:drop-shadow(0 0 4px #00fff7);">
+            $$e^{i\pi} + 1 = 0$$
+        </span>
+    </div>
+
+    <script>
+    function pad(n) { return n < 10 ? '0' + n : n; }
+
+    function createFlipUnit(unit, label) {
+        return `
+        <div style="display:flex;flex-direction:column;align-items:center;">
+            <div class="flip-unit" style="background:linear-gradient(135deg,#232526,#414345);color:#00fff7;font-size:2em;width:90px;height:90px;line-height:90px;border-radius:22px;box-shadow:0 8px 28px #00fff733,0 2px 0 #00fff7 inset;position:relative;overflow:hidden;margin-bottom:14px;letter-spacing:3px;transition:background 0.3s;display:flex;align-items:center;justify-content:center;">
+                <span class="flip-value" style="font-family:'Arial Black',Arial,sans-serif;">${pad(unit)}</span>
+            </div>
+            <div style="font-size:1em;font-weight:bold;letter-spacing:1.5px;text-shadow:0 0 2px #bfa100, 0 0 1px #fff; text-align:center; width:100%; background:linear-gradient(to right, #bfa100, #e6c200, #ffe066, #bfa100); -webkit-background-clip:text; background-clip:text; color:transparent;">
+                ${label}
+            </div>
+        </div>
+        `;
+    }
+
+    function updateFlipCalendar() {
+        const start = new Date('2026-01-16T00:00:00');
+        const now = new Date();
+        let diff = start - now;
+        let days = 0, hours = 0, minutes = 0, seconds = 0;
+        if (diff > 0) {
+            days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            minutes = Math.floor((diff / (1000 * 60)) % 60);
+            seconds = Math.floor((diff / 1000) % 60);
+        }
+        const units = [
+            { value: days, label: 'DAY' },
+            { value: hours, label: 'HOUR' },
+            { value: minutes, label: 'MIN' },
+            { value: seconds, label: 'SEC' }
+        ];
+        const calendar = document.getElementById('flip-calendar');
+        if (diff > 0) {
+            calendar.innerHTML = units.map(u => createFlipUnit(u.value, u.label)).join('');
+        } else {
+            calendar.innerHTML = `<div style="color:#fff;font-size:2em;">已到達 2026/1/23</div>`;
+        }
+    }
+
+    setInterval(updateFlipCalendar, 1000);
+    updateFlipCalendar();
+    </script>
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script>
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false}
+        ]
+      });
+    const formulas = [
+      '$$e^{i\\pi} + 1 = 0$$',
+      '$$\\int_{a}^{b} f(x)\\,dx$$',
+      '$$\\begin{bmatrix} a & b \\\\ c & d \\end{bmatrix}$$',
+      '$$P(A|B) = \\frac{P(B|A)P(A)}{P(B)}$$'
+    ];
+    const formulaSpan = document.querySelector('div[style*="margin-top:30px"] span');
+    const today = new Date();
+    const minuteIndex = Math.floor(today.getTime() / (60 * 1000)) % formulas.length;
+    formulaSpan.innerHTML = formulas[minuteIndex];
+    renderMathInElement(formulaSpan, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false}
+      ]
+    });
+    </script>
+</body>
+</html>
